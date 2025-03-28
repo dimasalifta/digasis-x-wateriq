@@ -29,16 +29,17 @@ void loop() {
 #if TINY_GSM_USE_GPRS
     // and make sure GPRS/EPS is still connected
     if (!modem.isGprsConnected()) {
+      sendATCommand("AT+SAPBR=1,1", "OK", 5000);
       SerialMon.println("GPRS disconnected!");
       SerialMon.print(F("Connecting to "));
       SerialMon.print(apn);
       if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-        SerialMon.println(" fail");
+        SerialMon.print(" fail");
         delay(10000);
         return;
       }
       if (modem.isGprsConnected()) {
-        SerialMon.println("GPRS reconnected");
+        SerialMon.print(" GPRS reconnected");
       }
     }
 #endif
@@ -77,10 +78,10 @@ void loop() {
     SerialMon.print(" V\t");
     SerialMon.print("Battery Current: ");
     SerialMon.print(sensorDataINA219.battery_current_mA);
-    SerialMon.print(" mA ");
+    SerialMon.print(" mA\t");
     SerialMon.print("Battery Power: ");
     SerialMon.print(sensorDataINA219.battery_power_mW);
-    SerialMon.print(" mW ");
+    SerialMon.print(" mW\t");
 
     sendToMQTT(sensorData.temperature, sensorData.humidity, sensorDataINA219.load_busVoltage, sensorDataINA219.load_current_mA, sensorDataINA219.load_power_mW, sensorDataINA219.battery_busVoltage, sensorDataINA219.battery_current_mA, sensorDataINA219.battery_power_mW, sensorDataINA219.solar_busVoltage, sensorDataINA219.solar_current_mA, sensorDataINA219.solar_power_mW);
   }
