@@ -18,7 +18,8 @@ void loop() {
   if (!modem.isNetworkConnected()) {
     SerialMon.println("Network disconnected");
     if (!modem.waitForNetwork(180000L, true)) {
-      SerialMon.println(" fail");
+      SerialMon.println(" fail (Network)");
+      sendATCommand("AT+CFUN=1,1", "OK", 5000);
       delay(1000);
       return;
     }
@@ -29,12 +30,12 @@ void loop() {
 #if TINY_GSM_USE_GPRS
     // and make sure GPRS/EPS is still connected
     if (!modem.isGprsConnected()) {
-      sendATCommand("AT+SAPBR=1,1", "OK", 5000);
       SerialMon.println("GPRS disconnected!");
       SerialMon.print(F("Connecting to "));
       SerialMon.print(apn);
       if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-        SerialMon.print(" fail");
+        SerialMon.print(" fail (GPRS)");
+        sendATCommand("AT+CFUN=1,1", "OK", 5000);
         delay(10000);
         return;
       }
