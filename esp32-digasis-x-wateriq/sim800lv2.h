@@ -1,7 +1,7 @@
 #define TINY_GSM_MODEM_SIM800
 
-//#define Serial Serial
-//#define TINY_GSM_DEBUG Serial
+#define SerialMon Serial
+#define TINY_GSM_DEBUG SerialMon
 
 #define RXD2 16
 #define TXD2 17
@@ -9,9 +9,7 @@
 
 #include <TinyGsmClient.h>
 HardwareSerial SerialAT(2); // RX, TX
-//// Range to attempt to autobaud
-//#define GSM_AUTOBAUD_MIN 9600
-//#define GSM_AUTOBAUD_MAX 115200
+
 
 // Your GPRS credentials, if any
 const char apn[] = "by.u";
@@ -24,8 +22,8 @@ TinyGsmClient client(modem);
 
 // Fungsi untuk mengirim perintah AT ke SIM800L
 bool sendATCommand(String command, String expected, unsigned int timeout) {
-  Serial.print("SEND: ");
-  Serial.println(command);
+  SerialMon.print("SEND: ");
+  SerialMon.println(command);
 
   SerialAT.println(command);
   unsigned long startTime = millis();
@@ -37,55 +35,52 @@ bool sendATCommand(String command, String expected, unsigned int timeout) {
       response += c;
     }
     if (response.indexOf(expected) != -1) {
-      Serial.print("RESP: ");
-      Serial.println(response);
+      SerialMon.print("RESP: ");
+      SerialMon.println(response);
       return true;
     }
   }
 
-  Serial.println("FAILED: " + command);
+  SerialMon.println("FAILED: " + command);
   return false;
 }
 
 void sim800lv2_setup() {
-//  // Set console baud rate
-//  Serial.begin(115200);
-//  delay(10);
 
   // !!!!!!!!!!!
   // Set your reset, enable, power pins here
   // !!!!!!!!!!!
 
-  Serial.println("Sim800lv2 setup Wait...");
+  SerialMon.println("Sim800lv2 setup Wait...");
 
   // Set GSM module baud rate
   SerialAT.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
   // Restart takes quite some time
   // To skip it, call init() instead of restart()
-  Serial.println("Initializing modem...");
+  SerialMon.println("Initializing modem...");
   modem.restart();
   //  modem.init();
 
   String modemInfo = modem.getModemInfo();
-  Serial.print("Modem Info: ");
-  Serial.println(modemInfo);
+  SerialMon.print("Modem Info: ");
+  SerialMon.println(modemInfo);
 
   String name = modem.getModemName();
-  Serial.print("Modem Name: ");
-  Serial.println(name);
+  SerialMon.print("Modem Name: ");
+  SerialMon.println(name);
 
   String manufacturer = modem.getModemManufacturer();
-  Serial.print("Modem Manufacturer: ");
-  Serial.println(manufacturer);
+  SerialMon.print("Modem Manufacturer: ");
+  SerialMon.println(manufacturer);
 
   String hw_ver = modem.getModemModel();
-  Serial.print("Modem Hardware Version: ");
-  Serial.println(hw_ver);
+  SerialMon.print("Modem Hardware Version: ");
+  SerialMon.println(hw_ver);
 
   String fv_ver = modem.getModemRevision();
-  Serial.print("Modem Firmware Version: ");
-  Serial.println(fv_ver);
+  SerialMon.print("Modem Firmware Version: ");
+  SerialMon.println(fv_ver);
 
   // Unlock your SIM card with a PIN if needed
   //  if ( GSM_PIN && modem.getSimStatus() != 3 ) {
@@ -95,60 +90,60 @@ void sim800lv2_setup() {
   // The XBee must run the gprsConnect function BEFORE waiting for network!
   modem.gprsConnect(apn, gprsUser, gprsPass);
 
-  Serial.print("Waiting for network...");
+  SerialMon.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
-    Serial.println(" fail");
+    SerialMon.println(" fail");
     delay(10000);
     return;
   }
-  Serial.println(" success");
+  SerialMon.println(" success");
 
   if (modem.isNetworkConnected()) {
-    Serial.println("Network connected");
+    SerialMon.println("Network connected");
   }
 
 
   // GPRS connection parameters are usually set after network registration
-  Serial.print(F("Connecting to "));
-  Serial.print(apn);
+  SerialMon.print(F("Connecting to "));
+  SerialMon.print(apn);
   if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-    Serial.println(" fail");
+    SerialMon.println(" fail");
     delay(10000);
     return;
   }
-  Serial.println(" success");
+  SerialMon.println(" success");
 
   if (modem.isGprsConnected()) {
-    Serial.println("GPRS connected");
+    SerialMon.println("GPRS connected");
 
     String ccid = modem.getSimCCID();
-    Serial.print("Modem CCID: ");
-    Serial.println(ccid);
+    SerialMon.print("Modem CCID: ");
+    SerialMon.println(ccid);
 
     String imei = modem.getIMEI();
-    Serial.print("Modem IMEI: ");
-    Serial.println(imei);
+    SerialMon.print("Modem IMEI: ");
+    SerialMon.println(imei);
 
     String imsi = modem.getIMSI();
-    Serial.print("Modem IMSI: ");
-    Serial.println(imsi);
+    SerialMon.print("Modem IMSI: ");
+    SerialMon.println(imsi);
 
     String cop = modem.getOperator();
-    Serial.print("Modem Operator: ");
-    Serial.println(cop);
+    SerialMon.print("Modem Operator: ");
+    SerialMon.println(cop);
 
     IPAddress local = modem.localIP();
-    Serial.print("Modem LocalIP: ");
-    Serial.println(local);
+    SerialMon.print("Modem LocalIP: ");
+    SerialMon.println(local);
 
     int csq = modem.getSignalQuality();
-    Serial.print("Modem Signal Quality: ");
-    Serial.println(csq);
+    SerialMon.print("Modem Signal Quality: ");
+    SerialMon.println(csq);
 
 
     String time = modem.getGSMDateTime(DATE_FULL);
-    Serial.print("Current Datetime: ");
-    Serial.println(time);
+    SerialMon.print("Current Datetime: ");
+    SerialMon.println(time);
 
   }
 

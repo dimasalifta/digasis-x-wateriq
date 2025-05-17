@@ -13,11 +13,11 @@ const unsigned long interval = 1500000;  // Interval pembacaan dalam mikrodetik 
 const unsigned long delay_transmission = 5000;
 
 void rs485_xymd02_setup() {
-//  Serial.begin(115200);
-  Serial.print("rs485_xymd02_setup....");
+  //  SerialMon.begin(115200);
+  SerialMon.print("rs485_xymd02_setup....");
   MAX485.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN); // Baud rate sesuai sensor
   XYMD02.begin(1, MAX485); // Slave ID sensor (default 1)
-  Serial.println("Success!");
+  SerialMon.println("Success!");
 }
 
 struct SensorData {
@@ -32,8 +32,10 @@ SensorData readSensorXYMD02() {
     data.temperature = XYMD02.getResponseBuffer(0) / 10.0;
     data.humidity = XYMD02.getResponseBuffer(1) / 10.0;
   } else {
-    Serial.print("Sensor XYMD02 Read Error: 0x");
-    Serial.println(result, HEX);
+    SerialMon.print("Sensor XYMD02 Read Error: 0x");
+    SerialMon.println(result, HEX);
+    data.temperature = 1;
+      data.humidity = 1;
   }
   return data;
 }
